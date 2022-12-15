@@ -1,6 +1,6 @@
 const btnColorArr = ["red", "blue", "green", "yellow"];
 const gamePattern = [];
-const userClickedPattern = [];
+let userClickedPattern = [];
 
 let level = 0;
 let firstKeyPress = true;
@@ -12,18 +12,18 @@ $(".btn").click(function (event) {
   // let userChosenColor = $(this).attr("id"); this is another way
   let userChosenColor = $(event.target).attr("id");
   userClickedPattern.push(userChosenColor);
-  console.log(userChosenColor);
+  // console.log(userChosenColor);
 
   playSound(userChosenColor);
   animatePress(userChosenColor);
+
+  checkAnswer(userClickedPattern.length - 1);
 });
 
 const newSequence = () => {
   let randomNum = Math.floor(Math.random() * 4);
   let randomColor = btnColorArr[randomNum];
   gamePattern.push(randomColor);
-
-  console.log(randomColor);
 
   // Flashes the color selected randomly
   $("#" + randomColor)
@@ -33,11 +33,12 @@ const newSequence = () => {
   playSound(randomColor);
 
   // Increasing level every time newSequence is called
-level++
+  level++;
 
-// Update title for every iteration
-$("#level-title").text("Level " + level);
+  // Update title for every iteration
+  $("#level-title").text("Level " + level);
 
+  userClickedPattern = [];
 };
 
 // Play sound for the clicked btn
@@ -56,6 +57,7 @@ const animatePress = (currentColor) => {
   }, 100);
 };
 
+// Game start logic
 $(document).keydown(function () {
   if (firstKeyPress) {
     // This is the first time a keyboard key has been pressed
@@ -68,5 +70,33 @@ $(document).keydown(function () {
   }
 });
 
-// Check users answer against game sequence
+$("#title-restart").hide(); // hide title-restart initially
 
+// Check users answer against game sequence
+const checkAnswer = (currentLevel) => {
+  if (gamePattern[currentLevel] === userClickedPattern[currentLevel]) {
+    console.log("success");
+
+    if (userClickedPattern.length === gamePattern.length) {
+      setTimeout(function () {
+        newSequence();
+      }, 1000);
+    }
+  } else {
+    console.log("wrong");
+    // Play sound when user inputs wrong input
+    let wrongSound = new Audio(`./sounds/wrong.mp3`);
+    wrongSound.play();
+
+    // Flash screen red upon wrong input
+    $("body").addClass("game-over");
+
+    setTimeout(function () {
+      $("body").removeClass("game-over");
+    }, 200);
+
+    // Reset title after wrong input and removes previous title
+    $("#title-restart").show();
+    $("#level-title").hide();
+  }
+};
