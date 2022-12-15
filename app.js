@@ -1,13 +1,12 @@
 const btnColorArr = ["red", "blue", "green", "yellow"];
-const gamePattern = [];
+let gamePattern = [];
 let userClickedPattern = [];
 
 let level = 0;
-let firstKeyPress = true;
+let gameStart = true;
 
 // Check Which Button is Pressed and perform function
 $(".btn").click(function (event) {
-  // This is the handler function
   // when the button is clicked it grabs the id of the element and pushes it to the array.
   // let userChosenColor = $(this).attr("id"); this is another way
   let userChosenColor = $(event.target).attr("id");
@@ -26,9 +25,7 @@ const newSequence = () => {
   gamePattern.push(randomColor);
 
   // Flashes the color selected randomly
-  $("#" + randomColor)
-    .fadeOut(100)
-    .fadeIn(100);
+  $(`#${randomColor}`).fadeOut(100).fadeIn(100);
 
   playSound(randomColor);
 
@@ -36,41 +33,24 @@ const newSequence = () => {
   level++;
 
   // Update title for every iteration
-  $("#level-title").text("Level " + level);
+  $(".level-title").text(`level ${level}`);
 
   userClickedPattern = [];
 };
 
-// Play sound for the clicked btn
-function playSound(name) {
-  let colorSound = new Audio(`./sounds/${name}.mp3`);
-  colorSound.play();
-}
-
-// Adds the 'pressed' class to the button that was clicked
-const animatePress = (currentColor) => {
-  $(`#${currentColor}`).addClass("pressed");
-
-  // Remove the 'pressed' class from the button after 100 milliseconds
-  setTimeout(function () {
-    $(`#${currentColor}`).removeClass("pressed");
-  }, 100);
-};
-
 // Game start logic
 $(document).keydown(function () {
-  if (firstKeyPress) {
+  if (gameStart) {
     // This is the first time a keyboard key has been pressed
     // Call newSequence()
-    $("#level-title").text("Level " + level);
+    $(".level-title").text(`level ${level}`);
     newSequence();
 
     // Set the flag to false to prevent newSequence() from being called again
-    firstKeyPress = false;
-  }
+    gameStart = false;
+  $(".level-title").removeClass("title-restart");
+}
 });
-
-$("#title-restart").hide(); // hide title-restart initially
 
 // Check users answer against game sequence
 const checkAnswer = (currentLevel) => {
@@ -85,18 +65,42 @@ const checkAnswer = (currentLevel) => {
   } else {
     console.log("wrong");
     // Play sound when user inputs wrong input
-    let wrongSound = new Audio(`./sounds/wrong.mp3`);
-    wrongSound.play();
+    playSound("wrong");
 
     // Flash screen red upon wrong input
     $("body").addClass("game-over");
+    $(".level-title")
+      .text("Game Over, Press Any Key to Restart")
+      // .attr("id", "title-restart");
+      .addClass("title-restart");
 
     setTimeout(function () {
       $("body").removeClass("game-over");
     }, 200);
 
-    // Reset title after wrong input and removes previous title
-    $("#title-restart").show();
-    $("#level-title").hide();
+    restartGame();
   }
+};
+
+// Adds the 'pressed' class to the button that was clicked
+const animatePress = (currentColor) => {
+  $(`#${currentColor}`).addClass("pressed");
+
+  // Remove the 'pressed' class from the button after 100 milliseconds
+  setTimeout(function () {
+    $(`#${currentColor}`).removeClass("pressed");
+  }, 100);
+};
+
+// Play sound for the clicked btn
+function playSound(name) {
+  let colorSound = new Audio(`./sounds/${name}.mp3`);
+  colorSound.play();
+}
+
+// Restarts the game upon wrong input
+const restartGame = () => {
+  level = 0;
+  gamePattern = [];
+  gameStart = true;
 };
