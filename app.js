@@ -1,7 +1,9 @@
 const btnColorArr = ["red", "blue", "green", "yellow"];
 const gamePattern = [];
 const userClickedPattern = [];
-const gameHeading = document.getElementById("level-title");
+
+let level = 0;
+let firstKeyPress = true;
 
 // Check Which Button is Pressed and perform function
 $(".btn").click(function (event) {
@@ -29,6 +31,13 @@ const newSequence = () => {
     .fadeIn(100);
 
   playSound(randomColor);
+
+  // Increasing level every time newSequence is called
+level++
+
+// Update title for every iteration
+$("#level-title").text("Level " + level);
+
 };
 
 // Play sound for the clicked btn
@@ -47,18 +56,17 @@ const animatePress = (currentColor) => {
   }, 100);
 };
 
-let level = "level 0";
-
-let firstKeyPress = true;
-
 $(document).keydown(function () {
   if (firstKeyPress) {
     // This is the first time a keyboard key has been pressed
-    // Call nextSequence()
+    // Call newSequence()
+    $("#level-title").text("Level " + level);
     newSequence();
 
-    gameHeading.innerHTML = "level 0"
-    // Set the flag to false to prevent nextSequence() from being called again
+    // Set the flag to false to prevent newSequence() from being called again
     firstKeyPress = false;
   }
 });
+
+// Check users answer against game sequence
+
